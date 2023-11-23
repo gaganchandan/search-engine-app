@@ -27,7 +27,7 @@ const Login = () => {
   };
 
   return (
-    <div className="form">
+    <div className="login-form">
       <h1>Login</h1>
       <p className='label'>Username: </p>
       <input type="text" id="username" name="username" className="input" value={formData.username} onChange={handleChange} />

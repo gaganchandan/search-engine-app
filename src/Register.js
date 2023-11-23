@@ -28,7 +28,7 @@ const Register = () => {
   };
 
   return (
-    <div className="form">
+    <div className="register-form">
       <h1>Register</h1>
       <p className='label'>Username: </p>
       <input type="text" id="username" name="username" className="input" value={formData.username} onChange={handleChange} />
