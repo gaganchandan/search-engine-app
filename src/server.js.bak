@@ -1,0 +1,64 @@
+// server.js
+const express = require('express');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+const cors = require('cors');
+
+const app = express();
+app.use(cors());
+const port = 3001;
+
+// Connect to MongoDB (replace 'your-mongodb-uri' with your MongoDB URI)
+mongoose.connect('mongodb://localhost:27017/mydatabase', { useNewUrlParser: true, useUnifiedTopology: true });
+const db = mongoose.connection;
+
+// Check MongoDB connection
+db.once('open', () => {
+  console.log('Connected to MongoDB');
+});
+
+// Check for MongoDB connection errors
+db.on('error', (err) => {
+  console.error('MongoDB connection error:', err);
+});
+
+// Create a user schema
+const userSchema = new mongoose.Schema({
+  username: { type: String, required: true, unique: true },
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+});
+
+// Create a User model
+const User = mongoose.model('User', userSchema);
+
+// Middleware
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// Registration endpoint
+app.post('/register', async (req, res) => {
+  const { username, email, password } = req.body;
+
+  try {
+    // Create a new user instance
+    const newUser = new User({ username, email, password });
+
+    // Save the user to the database
+    await newUser.save();
+
+    res.status(200).json({ message: 'Registration successful' });
+  } catch (error) {
+    // Handle registration errors (e.g., duplicate key error)
+    if (error.code === 11000) {
+      return res.status(400).json({ message: 'Username or email already exists' });
+    }
+
+    console.error('Registration error:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+app.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`);
+});
